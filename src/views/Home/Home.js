@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getGroups } from "../../controllers/GroupController";
 import "./Home.css";
 
 const Home = () => {
@@ -8,19 +9,10 @@ const Home = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/data/thirukkural.json")
-      .then((response) => {
-        if (!response.ok) throw new Error("Failed to fetch data");
-        return response.json();
-      })
-      .then((data) => {
-        setGroups(data.groups);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
+    getGroups()
+      .then(setGroups)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <p>Loading...</p>;

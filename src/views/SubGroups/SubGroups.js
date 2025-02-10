@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { getSubGroups } from "../../controllers/SubGroupController";
 import "./SubGroups.css";
 
 const SubGroups = () => {
   const { groupId } = useParams();
-  const [group, setGroup] = useState(null);
+  const [subGroups, setSubGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/data/thirukkural.json")
-      .then((response) => response.json())
-      .then((data) => {
-        const selectedGroup = data.groups.find((g) => g.id === parseInt(groupId));
-        if (!selectedGroup) throw new Error("Group not found");
-        setGroup(selectedGroup);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
+    getSubGroups(groupId)
+      .then(setSubGroups)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, [groupId]);
 
   if (loading) return <p>Loading...</p>;
@@ -28,9 +21,9 @@ const SubGroups = () => {
 
   return (
     <div className="subgroups-container">
-      <h2>{group.name} - Sub Groups</h2>
+      <h2>Sub Groups</h2>
       <div className="subgroup-list">
-        {group.subGroups.map((sub) => (
+        {subGroups.map((sub) => (
           <Link key={sub.id} to={`/poems/${groupId}/${sub.id}`} className="subgroup-item">
             {sub.name}
           </Link>
